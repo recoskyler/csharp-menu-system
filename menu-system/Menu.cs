@@ -19,7 +19,7 @@ namespace menu_system {
 		private bool _isRendering;
 		private bool _isMainMenu;
 		
-		Menu(Dictionary<char, MenuOption> options,
+		public Menu(Dictionary<char, MenuOption> options,
 			bool isMainMenu = false,
 			string title = "",
 			string subTitle = "",
@@ -29,7 +29,7 @@ namespace menu_system {
 			string exitPromptFalsy = "No",
 			string backButtonText = "Back",
 			string exitButtonText = "Exit",
-			string listPoint = "-",
+			string listPoint = "~",
 			string selectionPoint = ">"
 		) {
 			if ((options.ContainsKey('e') && isMainMenu) || (options.ContainsKey('b') && !isMainMenu)) {
@@ -67,8 +67,53 @@ namespace menu_system {
 			Options.Remove(key);
 		}
 
-		private void Render() {
+		private void Render(int selection) {
+			List<char> keys = new List<char>(Options.Keys);
 			
+			// Console.BackgroundColor = ConsoleColor.Black;
+			// Console.ForegroundColor = ConsoleColor.White;
+			
+			Console.Clear();
+			Console.CursorVisible = false;
+			
+			if (_title != "") Console.WriteLine(_title.ToUpper());
+			if (_subTitle != "") Console.WriteLine(_subTitle);
+			
+			Console.WriteLine("");
+			Console.WriteLine("  KEY  OPTION");
+			Console.WriteLine("");
+
+			for (int i = 0; i < Options.Keys.Count; i++) {
+				// if (i == selection) {
+				// 	Console.BackgroundColor = ConsoleColor.Gray;
+				// 	Console.ForegroundColor = ConsoleColor.White;
+				// } else {
+				// 	Console.BackgroundColor = ConsoleColor.Black;
+				// 	Console.ForegroundColor = ConsoleColor.White;
+				// }
+				
+				Console.Write(i == selection ? _selectionPoint : _listPoint);
+				Console.WriteLine("  {0} - {1}", keys[i], Options[keys[i]].Name);
+			}
+			
+			// if (selection >= Options.Count) {
+			// 	Console.BackgroundColor = ConsoleColor.Gray;
+			// 	Console.ForegroundColor = ConsoleColor.White;
+			// } else {
+			// 	Console.BackgroundColor = ConsoleColor.Black;
+			// 	Console.ForegroundColor = ConsoleColor.White;
+			// }
+			
+			Console.Write(selection >= Options.Count ? _selectionPoint : _listPoint);
+			Console.WriteLine("  {0} - {1}", _isMainMenu ? "e" : "b", _isMainMenu ? "Exit" : "Back");
+			
+			// Console.BackgroundColor = ConsoleColor.Black;
+			// Console.ForegroundColor = ConsoleColor.White;
+			
+			Console.WriteLine("");
+			
+			Console.Write("UP/DOWN : Move | ENTER : Select | ");
+			Console.Write(_isMainMenu ? "E/ESC : Exit" : "B/BACKSPACE : Back");
 		}
 
 		public void Run() {
@@ -81,11 +126,12 @@ namespace menu_system {
 			ConsoleKey key;
 			char keyChar;
 
-
 			do {
+				Render(selection);
+				
 				while (!Console.KeyAvailable)
 				{
-					Console.Write(".");
+					// Console.Write(".");
 				}
 
 				// Key is available - read it
@@ -96,20 +142,38 @@ namespace menu_system {
 
 				switch (key) {
 					case ConsoleKey.Enter:
-						if (selection == Options.Count) return;
+						if (selection == Options.Count) {
+							_isRendering = false;
+							break;
+						}
 						
 						Options[keys[selection]].Activate();
 						
 						break;
 					
+					case ConsoleKey.B:
+						if (_isMainMenu) break;
+						_isRendering = false;
+						break;
+
 					case ConsoleKey.Backspace:
 						if (_isMainMenu) break;
-						return;
+						_isRendering = false;
+						break;
 					
 					case ConsoleKey.E:
 						if (!_isMainMenu) break;
-						return;
+						_isRendering = false;
+						break;
 					
+					case ConsoleKey.UpArrow:
+						if (--selection < 0) selection = Options.Count;
+						break;
+					
+					case ConsoleKey.DownArrow:
+						if (++selection > Options.Count) selection = 0;
+						break;
+
 					default:
 						if (Options.ContainsKey(keyChar)) {
 							Options[keyChar].Activate();
