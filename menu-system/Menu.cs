@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace menu_system {
 	public class Menu {
@@ -93,9 +92,15 @@ namespace menu_system {
 				// }
 				
 				Console.Write(i == selection ? _selectionPoint : _listPoint);
-				Console.WriteLine("  {0} - {1}", keys[i], Options[keys[i]].Name);
+				Console.Write("  {0} - {1}", keys[i], Options[keys[i]].Name);
+
+				if (Options[keys[i]].GetType() == typeof(MenuOptionWithStringSelector)) {
+					Console.Write("  |  < {0} >", Options[keys[i]].CurrentOption());
+				}
+				
+				Console.WriteLine("");
 			}
-			
+
 			// if (selection >= Options.Count) {
 			// 	Console.BackgroundColor = ConsoleColor.Gray;
 			// 	Console.ForegroundColor = ConsoleColor.White;
@@ -111,10 +116,16 @@ namespace menu_system {
 			// Console.ForegroundColor = ConsoleColor.White;
 			
 			Console.WriteLine("");
+
+			if (selection < Options.Count && Options[keys[selection]].GetType() == typeof(MenuOptionWithStringSelector)) {
+				Console.Write("LEFT/RIGHT : Change | ");	
+			}
 			
 			Console.Write("UP/DOWN : Move | ENTER : Select | ");
 			Console.Write(_isMainMenu ? "E/ESC : Exit" : "B/BACKSPACE : Back");
 		}
+
+		public void Stop() => _isRendering = false;
 
 		public void Run() {
 			if (_isRendering) return;
@@ -172,6 +183,24 @@ namespace menu_system {
 					
 					case ConsoleKey.DownArrow:
 						if (++selection > Options.Count) selection = 0;
+						break;
+					
+					case ConsoleKey.LeftArrow:
+						if (selection == Options.Count) break;
+						
+						if (Options[keys[selection]].GetType() == typeof(MenuOptionWithStringSelector)) {
+							Options[keys[selection]].PreviousOption();
+						}
+						
+						break;
+					
+					case ConsoleKey.RightArrow:
+						if (selection == Options.Count) break;
+						
+						if (Options[keys[selection]].GetType() == typeof(MenuOptionWithStringSelector)) {
+							Options[keys[selection]].NextOption();
+						}
+						
 						break;
 
 					default:
