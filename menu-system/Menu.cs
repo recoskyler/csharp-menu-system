@@ -10,6 +10,8 @@ namespace menu_system {
 			{
 				if (value >= 0 && value < Options.Count) {
 					_selection = value;
+				} else {
+					throw new Exception("_selection out of index");
 				}
 			}
 		}
@@ -22,8 +24,8 @@ namespace menu_system {
 		private ConsoleColor TitleBackgroundColor { get; set; }
 		private ConsoleColor SubtitleForegroundColor { get; set; }
 		private ConsoleColor SubtitleBackgroundColor { get; set; }
-		private ConsoleColor SelectionForegroundColor { get; set; }
-		private ConsoleColor SelectionBackgroundColor { get; set; }
+		private ConsoleColor _SelectionForegroundColor { get; set; }
+		private ConsoleColor _SelectionBackgroundColor { get; set; }
 		private ConsoleColor BackAndExitForegroundColor { get; set; }
 		private ConsoleColor BackAndExitBackgroundColor { get; set; }
 		private ConsoleColor HintForegroundColor { get; set; }
@@ -86,8 +88,8 @@ namespace menu_system {
 			TitleBackgroundColor = titleBackgroundColor;
 			SubtitleForegroundColor = subtitleForegroundColor;
 			SubtitleBackgroundColor = subtitleBackgroundColor;
-			SelectionForegroundColor = selectionForegroundColor;
-			SelectionBackgroundColor = selectionBackgroundColor;
+			_SelectionForegroundColor = selectionForegroundColor;
+			_SelectionBackgroundColor = selectionBackgroundColor;
 			BackAndExitForegroundColor = backAndExitForegroundColor;
 			BackAndExitBackgroundColor = backAndExitBackgroundColor;
 			HintForegroundColor = hintForegroundColor;
@@ -157,15 +159,15 @@ namespace menu_system {
 			Console.ForegroundColor = ConsoleColor.White;
 
 			for (int i = 0; i < Options.Keys.Count; i++) {
-				if (i == Selection) {
-					Console.BackgroundColor = SelectionBackgroundColor;
-					Console.ForegroundColor = SelectionForegroundColor;
+				if (i == _selection) {
+					Console.BackgroundColor = _SelectionBackgroundColor;
+					Console.ForegroundColor = _SelectionForegroundColor;
 				} else {
 					Console.BackgroundColor = Options[keys[i]].BackgroundColor ?? BackgroundColor;
 					Console.ForegroundColor = Options[keys[i]].ForegroundColor ?? ForegroundColor;
 				}
 				
-				Console.Write(i == Selection ? _selectionPoint : _listPoint);
+				Console.Write(i == _selection ? _selectionPoint : _listPoint);
 				Console.Write("  {0} - {1}", keys[i], Options[keys[i]].Name);
 
 				// Extra Selector stuff
@@ -174,12 +176,12 @@ namespace menu_system {
 				
 				if (Options[keys[i]].GetType() == typeof(MenuOptionWithStringSelector)
 				    || Options[keys[i]].GetType() == typeof(MenuOptionWithNumberSelector)) {
-					Console.BackgroundColor = SelectionBackgroundColor;
+					Console.BackgroundColor = _SelectionBackgroundColor;
 					Console.ForegroundColor = ForegroundColor;
 					
 					Console.Write("  |  ");
 
-					if (i == Selection) {
+					if (i == _selection) {
 						Console.BackgroundColor = ActiveBackgroundColor;
 						Console.ForegroundColor = ActiveForegroundColor;
 					}
@@ -193,7 +195,7 @@ namespace menu_system {
 			// Exit/Back option (if the menu is not the exit prompt: isMainMenu = false and exitPromt = true)
 
 			if (_isMainMenu || !_exitPrompt) {
-				if (Selection >= Options.Count) {
+				if (_selection >= Options.Count) {
 					Console.BackgroundColor = ConsoleColor.Black;
 					Console.ForegroundColor = ConsoleColor.Red;
 				} else {
@@ -201,7 +203,7 @@ namespace menu_system {
 					Console.ForegroundColor = BackAndExitForegroundColor;
 				}
 				
-				Console.Write(Selection >= Options.Count ? _selectionPoint : _listPoint);
+				Console.Write(_selection >= Options.Count ? _selectionPoint : _listPoint);
 				Console.WriteLine("  {0} - {1}", _isMainMenu ? "e" : "b", _isMainMenu ? _exitButtonText : _backButtonText);
 			}
 			
@@ -212,8 +214,8 @@ namespace menu_system {
 			
 			Console.WriteLine("");
 			
-			if (Selection < Options.Count && (Options[keys[Selection]].GetType() == typeof(MenuOptionWithStringSelector)
-			    || Options[keys[Selection]].GetType() == typeof(MenuOptionWithNumberSelector))) {
+			if (_selection < Options.Count && (Options[keys[_selection]].GetType() == typeof(MenuOptionWithStringSelector)
+			    || Options[keys[_selection]].GetType() == typeof(MenuOptionWithNumberSelector))) {
 				Console.Write("LEFT/RIGHT : Change | ");	
 			}
 			
@@ -224,17 +226,17 @@ namespace menu_system {
 		}
 
 		public void NextOption() {
-			Selection++;
+			_selection++;
 			
-			if (Selection > Options.Count - 1 && !_isMainMenu && _exitPrompt) Selection = 0;
-			if (Selection > Options.Count) Selection = 0;
+			if (_selection > Options.Count - 1 && !_isMainMenu && _exitPrompt) _selection = 0;
+			if (_selection > Options.Count) _selection = 0;
 		}
 		
 		public void PreviousOption() {
-			Selection--;
+			_selection--;
 			
-			if (Selection < 0 && !_isMainMenu && _exitPrompt) Selection = Options.Count - 1;
-			if (Selection < 0) Selection = Options.Count;
+			if (_selection < 0 && !_isMainMenu && _exitPrompt) _selection = Options.Count - 1;
+			if (_selection < 0) _selection = Options.Count;
 		}
 
 		public void Stop() => _isRendering = false;
@@ -266,12 +268,12 @@ namespace menu_system {
 
 				switch (key) {
 					case ConsoleKey.Enter:
-						if (Selection == Options.Count) {
+						if (_selection == Options.Count) {
 							_isRendering = false;
 							break;
 						}
 						
-						Options[keys[Selection]].Activate();
+						Options[keys[_selection]].Activate();
 						
 						break;
 					
@@ -303,28 +305,28 @@ namespace menu_system {
 						break;
 					
 					case ConsoleKey.LeftArrow:
-						if (Selection == Options.Count) break;
+						if (_selection == Options.Count) break;
 						
-						if (Options[keys[Selection]].GetType() == typeof(MenuOptionWithStringSelector)
-						|| Options[keys[Selection]].GetType() == typeof(MenuOptionWithNumberSelector)) {
-							Options[keys[Selection]].PreviousOption();
+						if (Options[keys[_selection]].GetType() == typeof(MenuOptionWithStringSelector)
+						|| Options[keys[_selection]].GetType() == typeof(MenuOptionWithNumberSelector)) {
+							Options[keys[_selection]].PreviousOption();
 						}
 						
 						break;
 					
 					case ConsoleKey.RightArrow:
-						if (Selection == Options.Count) break;
+						if (_selection == Options.Count) break;
 						
-						if (Options[keys[Selection]].GetType() == typeof(MenuOptionWithStringSelector)
-						|| Options[keys[Selection]].GetType() == typeof(MenuOptionWithNumberSelector)) {
-							Options[keys[Selection]].NextOption();
+						if (Options[keys[_selection]].GetType() == typeof(MenuOptionWithStringSelector)
+						|| Options[keys[_selection]].GetType() == typeof(MenuOptionWithNumberSelector)) {
+							Options[keys[_selection]].NextOption();
 						}
 						
 						break;
 
 					default:
 						if (Options.ContainsKey(keyChar)) {
-							Selection = keys.LastIndexOf(keyChar);
+							_selection = keys.LastIndexOf(keyChar);
 							Options[keyChar].Activate();
 						}
 
@@ -353,7 +355,7 @@ namespace menu_system {
 							_isRendering = true; exitPrompt.Stop(); }) },
 					};
 
-					exitPrompt.Selection = 1;
+					exitPrompt._selection = 1;
 					
 					exitPrompt.Run();
 				}

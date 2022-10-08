@@ -7,18 +7,16 @@ namespace menu_system {
 
 		public static void Main() {
 			// This is just a test program, showing the features of the library
+
+			int someVal = -1;
 			
 			MenuOptionWithStringSelector strSelector = new MenuOptionWithStringSelector("Some multi option",
-				new Dictionary<string, Action>() {
-					{ "Basic", () => { } },
-					{ "Medium", () => { } },
-					{ "Advanced", () => { } }
-				});
+				new List<string> {"Basic", "Medium", "Advanced"}, s => { });
 			
 			MenuOptionWithNumberSelector numSelector = new MenuOptionWithNumberSelector("Some multi num option",
 				1,
 				10,
-				(int a) => { });
+				(int a) => { someVal = a; });
 			
 			Dictionary<char, MenuOption> subMenuOptions = new Dictionary<char, MenuOption>()
 			{
@@ -51,6 +49,7 @@ namespace menu_system {
 			
 			Console.WriteLine("");
 			Console.WriteLine(strSelector.CurrentOption());
+			Console.WriteLine(someVal);
 		}
 	}
 }

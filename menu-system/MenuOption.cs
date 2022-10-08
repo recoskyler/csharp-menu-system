@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace menu_system {
 	public abstract class MenuOption {
@@ -66,36 +67,49 @@ namespace menu_system {
 	}
 	
 	public class MenuOptionWithStringSelector: MenuOption {
-		private readonly Dictionary<string, Action> _options;
-		private readonly List<string> _keys;
-		private int Selection { get; set; }
-			
-		public MenuOptionWithStringSelector(string name, Dictionary<string, Action> options,
+		private readonly List<string> _options;
+		private readonly Action<string> _onChange;
+		private int _selection;
+
+		public int Selection {
+			get => _selection;
+			set {
+				if (value >= 0 && value < _options.Count) {
+					_selection = value;
+				} else {
+					throw new Exception("Selection out of index");
+				}
+			}
+		}
+
+		public MenuOptionWithStringSelector(string name, List<string> options, Action<string> onChange,
 			ConsoleColor? foregroundColor = null,
 			ConsoleColor? backgroundColor = null) : base(name,
 			foregroundColor,
 			backgroundColor) {
 			if (options.Count < 2) throw new Exception("Must have at least 2 options");
-			
+
+			_onChange = onChange;
 			_options = options;
-			_keys = new List<string>(_options.Keys);
-			Selection = 0;
+			_selection = 0;
 		}
 
 		public override void NextOption() {
-			if (++Selection >= _options.Count) Selection = 0;
+			if (++_selection >= _options.Count) _selection = 0;
+			_onChange.Invoke(CurrentOption());
 		}
 		
 		public override void PreviousOption() {
-			if (--Selection < 0) Selection = _options.Count - 1;
+			if (--_selection < 0) _selection = _options.Count - 1;
+			_onChange.Invoke(CurrentOption());
 		}
 
 		public override string CurrentOption() {
-			return _keys[Selection];
+			return _options[_selection];
 		}
 			
 		public override void Activate() {
-			_options[_keys[Selection]].Invoke();
+			_onChange.Invoke(CurrentOption());
 		}
 	}
 	
@@ -103,37 +117,48 @@ namespace menu_system {
 		private readonly Action<int> _onChange;
 		private readonly int _min;
 		private readonly int _max;
-		private int Selection { get; set; }
+		private int _selection;
+
+		public int Selection {
+			get => _selection;
+			set {
+				if (value >= _min && value <= _max) {
+					_selection = value;
+				} else {
+					throw new Exception("Selection out of index");
+				}
+			}
+		}
 			
 		public MenuOptionWithNumberSelector(string name, int min, int max, Action<int> onChange,
 			ConsoleColor? foregroundColor = null,
 			ConsoleColor? backgroundColor = null) : base(name,
 			foregroundColor,
 			backgroundColor) {
-			if (min >= max || max - min < 2) throw new Exception("Must have at least 2 options");
+			if (min >= max || max - min < 2) throw new Exception("Must have at least 2 sorted options");
 			
 			_onChange = onChange;
 			_min = min;
 			_max = max;
-			Selection = 0;
+			_selection = 0;
 		}
 
 		public override void NextOption() {
-			if (++Selection > _max) Selection = _min;
-			_onChange(Selection);
+			if (++_selection > _max) _selection = _min;
+			_onChange(_selection);
 		}
 		
 		public override void PreviousOption() {
-			if (--Selection < _min) Selection = _max;
-			_onChange(Selection);
+			if (--_selection < _min) _selection = _max;
+			_onChange(_selection);
 		}
 
 		public override string CurrentOption() {
-			return Selection.ToString();
+			return _selection.ToString();
 		}
 			
 		public override void Activate() {
-			_onChange(Selection);
+			_onChange(_selection);
 		}
 	}
 }
