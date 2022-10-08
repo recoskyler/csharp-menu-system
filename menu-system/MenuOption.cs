@@ -115,14 +115,15 @@ namespace menu_system {
 	
 	public class MenuOptionWithNumberSelector: MenuOption {
 		private readonly Action<int> _onChange;
-		private readonly int _min;
-		private readonly int _max;
+		private readonly int _start;
+		private readonly int _count;
+		private readonly int _step;
 		private int _selection;
 
 		public int Selection {
 			get => _selection;
 			set {
-				if (value >= _min && value <= _max) {
+				if (value >= _start && value <= _count) {
 					_selection = value;
 				} else {
 					throw new Exception("Selection out of index");
@@ -130,31 +131,40 @@ namespace menu_system {
 			}
 		}
 			
-		public MenuOptionWithNumberSelector(string name, int min, int max, Action<int> onChange,
+		public MenuOptionWithNumberSelector(string name,
+			int start,
+			int count,
+			Action<int> onChange,
+			int step = 1,
 			ConsoleColor? foregroundColor = null,
 			ConsoleColor? backgroundColor = null) : base(name,
 			foregroundColor,
 			backgroundColor) {
-			if (min >= max || max - min < 2) throw new Exception("Must have at least 2 sorted options");
+			if (count <= 1 || step <= 1) {
+				throw new Exception("Must have at least 2 sorted options, and positive count and step");
+			}
 			
 			_onChange = onChange;
-			_min = min;
-			_max = max;
+			_step = step;
+			_start = start;
+			_count = count;
 			_selection = 0;
 		}
 
 		public override void NextOption() {
-			if (++_selection > _max) _selection = _min;
+			if (++_selection > _count) _selection = 0;
+			
 			_onChange(_selection);
 		}
 		
 		public override void PreviousOption() {
-			if (--_selection < _min) _selection = _max;
+			if (--_selection < 0) _selection = _count;
+			
 			_onChange(_selection);
 		}
 
 		public override string CurrentOption() {
-			return _selection.ToString();
+			return ((_selection * _step) + _start).ToString();
 		}
 			
 		public override void Activate() {
