@@ -13,6 +13,11 @@ namespace menu_system {
 					{ "Advanced", () => { } }
 				});
 			
+			MenuOptionWithNumberSelector numSelector = new MenuOptionWithNumberSelector("Some multi num option",
+				1,
+				10,
+				(int a) => { });
+			
 			Dictionary<char, MenuOption> subMenuOptions = new Dictionary<char, MenuOption>()
 			{
 				{'1', new MenuOptionWithAction("Sum 1 and 2", () => { Console.WriteLine(Sum(1, 2));
@@ -21,7 +26,8 @@ namespace menu_system {
 				{'2', new MenuOptionWithAction("Print YO", () => { Console.WriteLine("YO");
 					Console.ReadKey();
 				})},
-				{'3', strSelector}
+				{'3', strSelector},
+				{'4', numSelector},
 			};
 			
 			Menu subMenu = new Menu(subMenuOptions, false, "the sub menu", "This is a sub menu");
@@ -37,7 +43,7 @@ namespace menu_system {
 				{'c', new MenuOptionWithSubMenu("Go to sub menu", subMenu)}
 			};
 
-			Menu menu = new Menu(menuOptions, true, "the main menu", "This is a simple menu system");
+			Menu menu = new Menu(menuOptions, true, "the main menu", "This is a simple menu system", true);
 			
 			menu.Run();
 			

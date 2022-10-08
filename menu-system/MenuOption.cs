@@ -74,4 +74,38 @@ namespace menu_system {
 			_options[_keys[Selection]].Invoke();
 		}
 	}
+	
+	public class MenuOptionWithNumberSelector: MenuOption {
+		private readonly Action<int> _onChange;
+		private int _min;
+		private int _max;
+		private int Selection { get; set; }
+			
+		public MenuOptionWithNumberSelector(string name, int min, int max, Action<int> onChange) : base(name) {
+			if (min >= max || max - min < 2) throw new Exception("Must have at least 2 options");
+			
+			_onChange = onChange;
+			_min = min;
+			_max = max;
+			Selection = 0;
+		}
+
+		public override void NextOption() {
+			if (++Selection > _max) Selection = _min;
+			_onChange(Selection);
+		}
+		
+		public override void PreviousOption() {
+			if (--Selection < _min) Selection = _max;
+			_onChange(Selection);
+		}
+
+		public override string CurrentOption() {
+			return Selection.ToString();
+		}
+			
+		public override void Activate() {
+			_onChange(Selection);
+		}
+	}
 }

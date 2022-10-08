@@ -6,10 +6,7 @@
 /home/recoskyler/RiderProjects/MenuSystem/menu-system/obj/Debug/menu_system.pdb
 /home/recoskyler/Projects/Personal/MenuSystem/menu-system/bin/Debug/menu_system.dll
 /home/recoskyler/Projects/Personal/MenuSystem/menu-system/bin/Debug/menu_system.pdb
-/home/recoskyler/Projects/Personal/MenuSystem/menu-system/bin/Debug/Newtonsoft.Json.dll
-/home/recoskyler/Projects/Personal/MenuSystem/menu-system/bin/Debug/Newtonsoft.Json.xml
 /home/recoskyler/Projects/Personal/MenuSystem/menu-system/obj/Debug/menu-system.csproj.AssemblyReference.cache
 /home/recoskyler/Projects/Personal/MenuSystem/menu-system/obj/Debug/menu-system.csproj.CoreCompileInputs.cache
-/home/recoskyler/Projects/Personal/MenuSystem/menu-system/obj/Debug/menu-system.csproj.CopyComplete
 /home/recoskyler/Projects/Personal/MenuSystem/menu-system/obj/Debug/menu_system.dll
 /home/recoskyler/Projects/Personal/MenuSystem/menu-system/obj/Debug/menu_system.pdb
