@@ -3,9 +3,34 @@ using System.Collections.Generic;
 
 namespace menu_system {
 	public class Menu {
-		private Dictionary<char, MenuOption> Options { get; set; }
-		private int Selection { get; set; }
+		private int _selection;
+		public int Selection {
+			get => _selection;
+			set 
+			{
+				if (value >= 0 && value < Options.Count) {
+					_selection = value;
+				}
+			}
+		}
 
+		private Dictionary<char, MenuOption> Options { get; set; }
+
+		private ConsoleColor ForegroundColor { get; set; }
+		private ConsoleColor BackgroundColor { get; set; }
+		private ConsoleColor TitleForegroundColor { get; set; }
+		private ConsoleColor TitleBackgroundColor { get; set; }
+		private ConsoleColor SubtitleForegroundColor { get; set; }
+		private ConsoleColor SubtitleBackgroundColor { get; set; }
+		private ConsoleColor SelectionForegroundColor { get; set; }
+		private ConsoleColor SelectionBackgroundColor { get; set; }
+		private ConsoleColor BackAndExitForegroundColor { get; set; }
+		private ConsoleColor BackAndExitBackgroundColor { get; set; }
+		private ConsoleColor HintForegroundColor { get; set; }
+		private ConsoleColor HintBackgroundColor { get; set; }
+		private ConsoleColor ActiveForegroundColor { get; set; }
+		private ConsoleColor ActiveBackgroundColor { get; set; }
+		
 		private readonly string _title;
 		private readonly string _subTitle;
 		private readonly string _backButtonText;
@@ -32,14 +57,42 @@ namespace menu_system {
 			string backButtonText = "Back",
 			string exitButtonText = "Exit",
 			string listPoint = "~",
-			string selectionPoint = ">"
+			string selectionPoint = ">",
+			ConsoleColor foregroundColor = ConsoleColor.White,
+			ConsoleColor backgroundColor = ConsoleColor.Black,
+			ConsoleColor titleForegroundColor = ConsoleColor.Black,
+			ConsoleColor titleBackgroundColor = ConsoleColor.White,
+			ConsoleColor subtitleForegroundColor = ConsoleColor.Black,
+			ConsoleColor subtitleBackgroundColor = ConsoleColor.Gray,
+			ConsoleColor selectionForegroundColor = ConsoleColor.Cyan,
+			ConsoleColor selectionBackgroundColor = ConsoleColor.Black,
+			ConsoleColor backAndExitForegroundColor = ConsoleColor.DarkRed,
+			ConsoleColor backAndExitBackgroundColor = ConsoleColor.Black,
+			ConsoleColor hintForegroundColor = ConsoleColor.DarkGray,
+			ConsoleColor hintBackgroundColor = ConsoleColor.Black,
+			ConsoleColor activeForegroundColor = ConsoleColor.Yellow,
+			ConsoleColor activeBackgroundColor = ConsoleColor.Black
 		) {
 			if ((options.ContainsKey('e') && isMainMenu) || (options.ContainsKey('b') && !isMainMenu)) {
 				throw new Exception("You cannot add an option with this character");
 			}
 			
 			Options = options;
-			Selection = 0;
+			ActiveForegroundColor = activeForegroundColor;
+			ActiveBackgroundColor = activeBackgroundColor;
+			ForegroundColor = foregroundColor;
+			BackgroundColor = backgroundColor;
+			TitleForegroundColor = titleForegroundColor;
+			TitleBackgroundColor = titleBackgroundColor;
+			SubtitleForegroundColor = subtitleForegroundColor;
+			SubtitleBackgroundColor = subtitleBackgroundColor;
+			SelectionForegroundColor = selectionForegroundColor;
+			SelectionBackgroundColor = selectionBackgroundColor;
+			BackAndExitForegroundColor = backAndExitForegroundColor;
+			BackAndExitBackgroundColor = backAndExitBackgroundColor;
+			HintForegroundColor = hintForegroundColor;
+			HintBackgroundColor = hintBackgroundColor;
+			_selection = 0;
 			_listPoint = listPoint;
 			_selectionPoint = selectionPoint;
 			_isRendering = false;
@@ -73,23 +126,27 @@ namespace menu_system {
 		private void Render() {
 			List<char> keys = new List<char>(Options.Keys);
 			
-			Console.BackgroundColor = ConsoleColor.Black;
+			Console.BackgroundColor = BackgroundColor;
 			
 			Console.Clear();
 			Console.CursorVisible = false;
 			
 			// Title and subtitle
 			
-			// Console.BackgroundColor = ConsoleColor.Black;
-			Console.ForegroundColor = ConsoleColor.White;
+			Console.BackgroundColor = TitleBackgroundColor;
+			Console.ForegroundColor = TitleForegroundColor;
 			
 			if (_title != "") Console.WriteLine(_title.ToUpper());
+			
+			Console.BackgroundColor = SubtitleBackgroundColor;
+			Console.ForegroundColor = SubtitleForegroundColor;
+			
 			if (_subTitle != "") Console.WriteLine(_subTitle);
 			
 			// Key/Option hint
 			
-			// Console.BackgroundColor = ConsoleColor.Black;
-			Console.ForegroundColor = ConsoleColor.Gray;
+			Console.BackgroundColor = HintBackgroundColor;
+			Console.ForegroundColor = HintForegroundColor;
 			
 			Console.WriteLine("");
 			Console.WriteLine("  KEY  OPTION");
@@ -101,11 +158,11 @@ namespace menu_system {
 
 			for (int i = 0; i < Options.Keys.Count; i++) {
 				if (i == Selection) {
-					// Console.BackgroundColor = ConsoleColor.Gray;
-					Console.ForegroundColor = ConsoleColor.Cyan;
+					Console.BackgroundColor = SelectionBackgroundColor;
+					Console.ForegroundColor = SelectionForegroundColor;
 				} else {
-					// Console.BackgroundColor = ConsoleColor.Black;
-					Console.ForegroundColor = ConsoleColor.White;
+					Console.BackgroundColor = Options[keys[i]].BackgroundColor ?? BackgroundColor;
+					Console.ForegroundColor = Options[keys[i]].ForegroundColor ?? ForegroundColor;
 				}
 				
 				Console.Write(i == Selection ? _selectionPoint : _listPoint);
@@ -117,9 +174,16 @@ namespace menu_system {
 				
 				if (Options[keys[i]].GetType() == typeof(MenuOptionWithStringSelector)
 				    || Options[keys[i]].GetType() == typeof(MenuOptionWithNumberSelector)) {
-					Console.ForegroundColor = ConsoleColor.White;
+					Console.BackgroundColor = SelectionBackgroundColor;
+					Console.ForegroundColor = ForegroundColor;
+					
 					Console.Write("  |  ");
-					Console.ForegroundColor = ConsoleColor.Yellow;
+
+					if (i == Selection) {
+						Console.BackgroundColor = ActiveBackgroundColor;
+						Console.ForegroundColor = ActiveForegroundColor;
+					}
+					
 					Console.Write("< {0} >", Options[keys[i]].CurrentOption());
 				}
 				
@@ -130,20 +194,21 @@ namespace menu_system {
 
 			if (_isMainMenu || !_exitPrompt) {
 				if (Selection >= Options.Count) {
-					// 	Console.BackgroundColor = ConsoleColor.Gray;
+					Console.BackgroundColor = ConsoleColor.Black;
 					Console.ForegroundColor = ConsoleColor.Red;
 				} else {
-					// 	Console.BackgroundColor = ConsoleColor.Black;
-					Console.ForegroundColor = ConsoleColor.DarkRed;
+					Console.BackgroundColor = BackAndExitBackgroundColor;
+					Console.ForegroundColor = BackAndExitForegroundColor;
 				}
 				
 				Console.Write(Selection >= Options.Count ? _selectionPoint : _listPoint);
 				Console.WriteLine("  {0} - {1}", _isMainMenu ? "e" : "b", _isMainMenu ? _exitButtonText : _backButtonText);
 			}
+			
 			// Selector Hints/Usage
 			
-			// Console.BackgroundColor = ConsoleColor.Black;
-			Console.ForegroundColor = ConsoleColor.Gray;
+			Console.BackgroundColor = HintBackgroundColor;
+			Console.ForegroundColor = HintForegroundColor;
 			
 			Console.WriteLine("");
 			
@@ -176,6 +241,9 @@ namespace menu_system {
 
 		public void Run() {
 			if (_isRendering) return;
+
+			ConsoleColor backgroundColor = Console.BackgroundColor;
+			ConsoleColor foregroundColor = Console.ForegroundColor;
 
 			_isRendering = true;
 
@@ -266,19 +334,39 @@ namespace menu_system {
 				// Exit prompt
 				
 				if (_exitPrompt && _isMainMenu && !_isRendering) {
-					Menu exitPrompt = new Menu(new Dictionary<char, MenuOption>(), false, _title, _exitPromptText, true);
+					// Just render another menu
+					
+					// Setting the isMainMenu to false, and exitPrompt to true is a way to say that this
+					// Menu is the exit prompt itself. So it will not have a back/exit button/option.
+					
+					Menu exitPrompt = new Menu(
+						new Dictionary<char, MenuOption>(), 
+						false, 
+						_title, 
+						_exitPromptText, 
+						true
+						);
 
 					exitPrompt.Options = new Dictionary<char, MenuOption>() {
 						{ 'y', new MenuOptionWithAction(_exitPromptTruthy, () => { exitPrompt.Stop(); }) },
 						{ 'n', new MenuOptionWithAction(_exitPromptFalsy, () => {
 							_isRendering = true; exitPrompt.Stop(); }) },
 					};
+
+					exitPrompt.Selection = 1;
 					
 					exitPrompt.Run();
 				}
 			} while (key != ConsoleKey.Escape && _isRendering);
 
 			_isRendering = false;
+			
+			// Clear the console
+			
+			Console.BackgroundColor = backgroundColor;
+			Console.ForegroundColor = foregroundColor;
+			
+			Console.Clear();
 		}
 	}
 }

@@ -6,6 +6,8 @@ namespace menu_system {
 		private static int Sum(int a, int b) => a + b;
 
 		public static void Main() {
+			// This is just a test program, showing the features of the library
+			
 			MenuOptionWithStringSelector strSelector = new MenuOptionWithStringSelector("Some multi option",
 				new Dictionary<string, Action>() {
 					{ "Basic", () => { } },
