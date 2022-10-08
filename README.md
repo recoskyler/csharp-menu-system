@@ -15,7 +15,7 @@ The minimum viable state has been reached. You can use it, but expect a few bugs
 - Menu option with action. Invokes an `Action`.
 - Menu option with submenu. Runs another `Menu`. This menu can not have `isMainMenu` set to `true`.
 - Menu option with string selector. A menu with multiple string options, which scrolls sideways. An `onChange` `Action<string>` gets invoked each time the selection changes.
-- Menu option with number range selector. A menu with multiple integer options, ranging from min to max (_inclusive_), which scrolls sideways. An `onChange` `Action<string>` gets invoked each time the selection changes.
+- Menu option with number range selector. A menu with multiple integer options which scrolls sideways. An `onChange` `Action<int>` gets invoked each time the selection changes.
 
 ## Usage
 
@@ -28,9 +28,10 @@ MenuOptionWithStringSelector strSelector = new MenuOptionWithStringSelector("Som
     new List<string> {"Basic", "Medium", "Advanced"}, s => { });
 
 MenuOptionWithNumberSelector numSelector = new MenuOptionWithNumberSelector("Some multi num option",
-    1,
-    10,
-    (int a) => { someVal = a; });
+    1, // Start of the range
+    10, // Count of the range, so it will have 10 elements
+    (int a) => { someVal = a; },
+    2); // Steps. The list will be 1, 3, 5, 7, 9...
 
 Dictionary<char, MenuOption> subMenuOptions = new Dictionary<char, MenuOption>()
 {
