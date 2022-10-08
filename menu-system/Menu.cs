@@ -24,8 +24,8 @@ namespace menu_system {
 		private ConsoleColor TitleBackgroundColor { get; set; }
 		private ConsoleColor SubtitleForegroundColor { get; set; }
 		private ConsoleColor SubtitleBackgroundColor { get; set; }
-		private ConsoleColor _SelectionForegroundColor { get; set; }
-		private ConsoleColor _SelectionBackgroundColor { get; set; }
+		private ConsoleColor SelectionForegroundColor { get; set; }
+		private ConsoleColor SelectionBackgroundColor { get; set; }
 		private ConsoleColor BackAndExitForegroundColor { get; set; }
 		private ConsoleColor BackAndExitBackgroundColor { get; set; }
 		private ConsoleColor HintForegroundColor { get; set; }
@@ -88,8 +88,8 @@ namespace menu_system {
 			TitleBackgroundColor = titleBackgroundColor;
 			SubtitleForegroundColor = subtitleForegroundColor;
 			SubtitleBackgroundColor = subtitleBackgroundColor;
-			_SelectionForegroundColor = selectionForegroundColor;
-			_SelectionBackgroundColor = selectionBackgroundColor;
+			SelectionForegroundColor = selectionForegroundColor;
+			SelectionBackgroundColor = selectionBackgroundColor;
 			BackAndExitForegroundColor = backAndExitForegroundColor;
 			BackAndExitBackgroundColor = backAndExitBackgroundColor;
 			HintForegroundColor = hintForegroundColor;
@@ -160,8 +160,8 @@ namespace menu_system {
 
 			for (int i = 0; i < Options.Keys.Count; i++) {
 				if (i == _selection) {
-					Console.BackgroundColor = _SelectionBackgroundColor;
-					Console.ForegroundColor = _SelectionForegroundColor;
+					Console.BackgroundColor = SelectionBackgroundColor;
+					Console.ForegroundColor = SelectionForegroundColor;
 				} else {
 					Console.BackgroundColor = Options[keys[i]].BackgroundColor ?? BackgroundColor;
 					Console.ForegroundColor = Options[keys[i]].ForegroundColor ?? ForegroundColor;
@@ -176,7 +176,7 @@ namespace menu_system {
 				
 				if (Options[keys[i]].GetType() == typeof(MenuOptionWithStringSelector)
 				    || Options[keys[i]].GetType() == typeof(MenuOptionWithNumberSelector)) {
-					Console.BackgroundColor = _SelectionBackgroundColor;
+					Console.BackgroundColor = SelectionBackgroundColor;
 					Console.ForegroundColor = ForegroundColor;
 					
 					Console.Write("  |  ");
