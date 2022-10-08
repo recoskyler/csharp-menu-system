@@ -1,6 +1,0 @@
-/home/recoskyler/Projects/Personal/MenuSystem/menu-system/bin/Release/menu_system.dll
-/home/recoskyler/Projects/Personal/MenuSystem/menu-system/bin/Release/menu_system.pdb
-/home/recoskyler/Projects/Personal/MenuSystem/menu-system/obj/Release/menu-system.csproj.AssemblyReference.cache
-/home/recoskyler/Projects/Personal/MenuSystem/menu-system/obj/Release/menu-system.csproj.CoreCompileInputs.cache
-/home/recoskyler/Projects/Personal/MenuSystem/menu-system/obj/Release/menu_system.dll
-/home/recoskyler/Projects/Personal/MenuSystem/menu-system/obj/Release/menu_system.pdb

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace menu_system {
 	public class Menu {
 		private int _selection;
@@ -192,7 +189,7 @@ namespace menu_system {
 				Console.WriteLine("");
 			}
 			
-			// Exit/Back option (if the menu is not the exit prompt: isMainMenu = false and exitPromt = true)
+			// Exit/Back option (if the menu is not the exit prompt: isMainMenu = false and exitPrompt = true)
 
 			if (_isMainMenu || !_exitPrompt) {
 				if (_selection >= Options.Count) {
@@ -251,7 +248,6 @@ namespace menu_system {
 
 			List<char> keys = new List<char>(Options.Keys);
 			ConsoleKey key;
-			char keyChar;
 
 			do {
 				Render();
@@ -264,7 +260,7 @@ namespace menu_system {
 				ConsoleKeyInfo kInfo = Console.ReadKey(false);
 				
 				key = kInfo.Key;
-				keyChar = kInfo.KeyChar;
+				var keyChar = kInfo.KeyChar;
 
 				switch (key) {
 					case ConsoleKey.Enter:
