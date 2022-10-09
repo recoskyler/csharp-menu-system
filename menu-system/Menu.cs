@@ -219,7 +219,13 @@ namespace menu_system {
 			// Menu Hints/Usage
 			
 			Console.Write("UP/DOWN : Move | ENTER : Select | ");
-			Console.Write(_isMainMenu ? "E/ESC : Exit" : "B/BACKSPACE : Back");
+
+			if (!_isMainMenu && _exitPrompt) {
+				Console.Write("ESC : Back");
+			}
+			else {
+				Console.Write(_isMainMenu ? "E/ESC : Exit" : "B/BACKSPACE/ESC : Back");
+			}
 		}
 
 		public void NextOption() {

@@ -114,7 +114,7 @@ namespace menu_system {
 	}
 	
 	public class MenuOptionWithNumberSelector: MenuOption {
-		private readonly Action<int> _onChange;
+		private readonly Action<int, int> _onChange;
 		private readonly int _start;
 		private readonly int _count;
 		private readonly int _step;
@@ -134,7 +134,7 @@ namespace menu_system {
 		public MenuOptionWithNumberSelector(string name,
 			int start,
 			int count,
-			Action<int> onChange,
+			Action<int, int> onChange,
 			int step = 1,
 			ConsoleColor? foregroundColor = null,
 			ConsoleColor? backgroundColor = null) : base(name,
@@ -154,13 +154,13 @@ namespace menu_system {
 		public override void NextOption() {
 			if (++_selection > _count) _selection = 0;
 			
-			_onChange(_selection);
+			_onChange(_selection, (_selection * _step) + _start);
 		}
 		
 		public override void PreviousOption() {
 			if (--_selection < 0) _selection = _count;
 			
-			_onChange(_selection);
+			_onChange(_selection, (_selection * _step) + _start);
 		}
 
 		public override string CurrentOption() {
@@ -168,7 +168,7 @@ namespace menu_system {
 		}
 			
 		public override void Activate() {
-			_onChange(_selection);
+			_onChange(_selection, (_selection * _step) + _start);
 		}
 	}
 }

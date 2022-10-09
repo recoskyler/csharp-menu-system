@@ -16,7 +16,7 @@ namespace menu_system {
 			MenuOptionWithNumberSelector numSelector = new MenuOptionWithNumberSelector("Some multi num option",
 				1,
 				10,
-				(int a) => { someVal = a; });
+				(int index, int value) => { someVal = value; });
 			
 			Dictionary<char, MenuOption> subMenuOptions = new Dictionary<char, MenuOption>()
 			{
