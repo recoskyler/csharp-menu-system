@@ -13,7 +13,28 @@ namespace menu_system {
 			}
 		}
 
-		private Dictionary<char, MenuOption> Options { get; set; }
+		public List<MenuOption> Options {
+			get => _options;
+
+			set {
+				List<char> existingKeys = new List<char>();
+				
+				if ((value.Any(v => v.Key == 'e') && _isMainMenu) &&
+				    (!_exitPrompt && value.Any(v => v.Key == 'b') && !_isMainMenu)) {
+					throw new Exception("You cannot add an option with this character (e/b)");
+				}
+
+				foreach (var opt in value.Where(opt => opt.Key != null)) {
+					if (existingKeys.Contains((char)opt.Key!)) {
+						throw new Exception("Menu cannot contain duplicate keys");
+					}
+
+					existingKeys.Add((char)opt.Key);
+				}
+
+				_options = value;
+			}
+		}
 
 		private ConsoleColor ForegroundColor { get; set; }
 		private ConsoleColor BackgroundColor { get; set; }
@@ -44,8 +65,9 @@ namespace menu_system {
 		private readonly bool _isMainMenu;
 		
 		private bool _isRendering;
-		
-		public Menu(Dictionary<char, MenuOption> options,
+		private List<MenuOption> _options;
+
+		public Menu(List<MenuOption> options,
 			bool isMainMenu = false,
 			string title = "MENU",
 			string subTitle = "Please choose an option",
@@ -72,10 +94,7 @@ namespace menu_system {
 			ConsoleColor activeForegroundColor = ConsoleColor.Yellow,
 			ConsoleColor activeBackgroundColor = ConsoleColor.Black
 		) {
-			if ((options.ContainsKey('e') && isMainMenu) || (options.ContainsKey('b') && !isMainMenu)) {
-				throw new Exception("You cannot add an option with this character");
-			}
-			
+			_options = new List<MenuOption>();
 			Options = options;
 			ActiveForegroundColor = activeForegroundColor;
 			ActiveBackgroundColor = activeBackgroundColor;
@@ -106,25 +125,27 @@ namespace menu_system {
 			_isMainMenu = isMainMenu;
 		}
 
-		public void AddOption(char key, MenuOption option) {
-			if ((key == 'e' && _isMainMenu) || (key == 'b' && !_isMainMenu)) {
+		public void AddOption(MenuOption option) {
+			if ((option.Key == 'e' && _isMainMenu) || (option.Key == 'b' && !_isMainMenu && !_exitPrompt)) {
 				throw new Exception("You cannot add an option with this character");
 			}
-			
-			Options.Add(key, option);
-		}
-		
-		public void RemoveOption(char key) {
-			if ((key == 'e' && _isMainMenu) || (key == 'b' && !_isMainMenu)) {
-				throw new Exception("You cannot remove the option with this character");
+
+			if (Options.Any(v => v.Key == option.Key)) {
+				throw new Exception("An option with the same key already exists");
 			}
 			
-			Options.Remove(key);
+			Options.Add(option);
+		}
+		
+		public void RemoveOption(int index) {
+			if (index < 0 || index >= Options.Count) {
+				throw new Exception("Index out of bounds");
+			}
+			
+			Options.RemoveAt(index);
 		}
 
 		private void Render() {
-			List<char> keys = new List<char>(Options.Keys);
-			
 			Console.BackgroundColor = BackgroundColor;
 			
 			Console.Clear();
@@ -155,24 +176,24 @@ namespace menu_system {
 			
 			Console.ForegroundColor = ConsoleColor.White;
 
-			for (int i = 0; i < Options.Keys.Count; i++) {
+			for (int i = 0; i < Options.Count; i++) {
 				if (i == _selection) {
 					Console.BackgroundColor = SelectionBackgroundColor;
 					Console.ForegroundColor = SelectionForegroundColor;
 				} else {
-					Console.BackgroundColor = Options[keys[i]].BackgroundColor ?? BackgroundColor;
-					Console.ForegroundColor = Options[keys[i]].ForegroundColor ?? ForegroundColor;
+					Console.BackgroundColor = Options[i].BackgroundColor ?? BackgroundColor;
+					Console.ForegroundColor = Options[i].ForegroundColor ?? ForegroundColor;
 				}
 				
 				Console.Write(i == _selection ? _selectionPoint : _listPoint);
-				Console.Write("  {0} - {1}", keys[i], Options[keys[i]].Name);
+				Console.Write("  {0} - {1}", Options[i].Key ?? ' ', Options[i].Name);
 
 				// Extra Selector stuff
 				
 				Console.ForegroundColor = ConsoleColor.Yellow;
 				
-				if (Options[keys[i]].GetType() == typeof(MenuOptionWithStringSelector)
-				    || Options[keys[i]].GetType() == typeof(MenuOptionWithNumberSelector)) {
+				if (Options[i].GetType() == typeof(MenuOptionWithStringSelector)
+				    || Options[i].GetType() == typeof(MenuOptionWithNumberSelector)) {
 					Console.BackgroundColor = SelectionBackgroundColor;
 					Console.ForegroundColor = ForegroundColor;
 					
@@ -183,7 +204,7 @@ namespace menu_system {
 						Console.ForegroundColor = ActiveForegroundColor;
 					}
 					
-					Console.Write("< {0} >", Options[keys[i]].CurrentOption());
+					Console.Write("< {0} >", Options[i].CurrentOption());
 				}
 				
 				Console.WriteLine("");
@@ -211,8 +232,8 @@ namespace menu_system {
 			
 			Console.WriteLine("");
 			
-			if (_selection < Options.Count && (Options[keys[_selection]].GetType() == typeof(MenuOptionWithStringSelector)
-			    || Options[keys[_selection]].GetType() == typeof(MenuOptionWithNumberSelector))) {
+			if (_selection < Options.Count && (Options[_selection].GetType() == typeof(MenuOptionWithStringSelector)
+			    || Options[_selection].GetType() == typeof(MenuOptionWithNumberSelector))) {
 				Console.Write("LEFT/RIGHT : Change | ");	
 			}
 			
@@ -252,7 +273,6 @@ namespace menu_system {
 
 			_isRendering = true;
 
-			List<char> keys = new List<char>(Options.Keys);
 			ConsoleKey key;
 
 			do {
@@ -275,14 +295,16 @@ namespace menu_system {
 							break;
 						}
 						
-						Options[keys[_selection]].Activate();
+						Options[_selection].Activate();
 						
 						break;
 					
 					case ConsoleKey.B:
 						if (!_isMainMenu && !_exitPrompt) _isRendering = false;
 
-							if (Options.ContainsKey(keyChar)) Options[keyChar].Activate();
+						if (Options.Any(v => v.Key == keyChar)) {
+							Options.First(v => v.Key == keyChar).Activate();
+						}
 
 						break;
 
@@ -294,7 +316,10 @@ namespace menu_system {
 					
 					case ConsoleKey.E:
 						if (_isMainMenu) _isRendering = false;
-						if (Options.ContainsKey(keyChar)) Options[keyChar].Activate();
+						
+						if (Options.Any(v => v.Key == keyChar)) {
+							Options.First(v => v.Key == keyChar).Activate();
+						}
 
 						break;
 					
@@ -309,9 +334,9 @@ namespace menu_system {
 					case ConsoleKey.LeftArrow:
 						if (_selection == Options.Count) break;
 						
-						if (Options[keys[_selection]].GetType() == typeof(MenuOptionWithStringSelector)
-						|| Options[keys[_selection]].GetType() == typeof(MenuOptionWithNumberSelector)) {
-							Options[keys[_selection]].PreviousOption();
+						if (Options[_selection].GetType() == typeof(MenuOptionWithStringSelector)
+						|| Options[_selection].GetType() == typeof(MenuOptionWithNumberSelector)) {
+							Options[_selection].PreviousOption();
 						}
 						
 						break;
@@ -319,17 +344,16 @@ namespace menu_system {
 					case ConsoleKey.RightArrow:
 						if (_selection == Options.Count) break;
 						
-						if (Options[keys[_selection]].GetType() == typeof(MenuOptionWithStringSelector)
-						|| Options[keys[_selection]].GetType() == typeof(MenuOptionWithNumberSelector)) {
-							Options[keys[_selection]].NextOption();
+						if (Options[_selection].GetType() == typeof(MenuOptionWithStringSelector)
+						|| Options[_selection].GetType() == typeof(MenuOptionWithNumberSelector)) {
+							Options[_selection].NextOption();
 						}
 						
 						break;
 
 					default:
-						if (Options.ContainsKey(keyChar)) {
-							_selection = keys.LastIndexOf(keyChar);
-							Options[keyChar].Activate();
+						if (Options.Any(v => v.Key == keyChar)) {
+							Options.First(v => v.Key == keyChar).Activate();
 						}
 
 						break;
@@ -344,17 +368,17 @@ namespace menu_system {
 					// Menu is the exit prompt itself. So it will not have a back/exit button/option.
 					
 					Menu exitPrompt = new Menu(
-						new Dictionary<char, MenuOption>(), 
+						new List<MenuOption>(), 
 						false, 
 						_title, 
 						_exitPromptText, 
 						true
 						);
 
-					exitPrompt.Options = new Dictionary<char, MenuOption>() {
-						{ 'y', new MenuOptionWithAction(_exitPromptTruthy, () => { exitPrompt.Stop(); }) },
-						{ 'n', new MenuOptionWithAction(_exitPromptFalsy, () => {
-							_isRendering = true; exitPrompt.Stop(); }) },
+					exitPrompt.Options = new List<MenuOption>() {
+						new MenuOptionWithAction(_exitPromptTruthy, () => { exitPrompt.Stop(); }, 'y'),
+						new MenuOptionWithAction(_exitPromptFalsy, () => {
+							_isRendering = true; exitPrompt.Stop(); }, 'n'),
 					};
 
 					exitPrompt._selection = 1;

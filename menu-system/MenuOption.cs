@@ -4,6 +4,7 @@ using System.Data;
 
 namespace menu_system {
 	public abstract class MenuOption {
+		public readonly char? Key;
 		public readonly string Name;
 		
 		public ConsoleColor? ForegroundColor { get; set; }
@@ -19,15 +20,17 @@ namespace menu_system {
 			return Name;
 		}
 		
-		protected MenuOption(string name, ConsoleColor? foregroundColor, ConsoleColor? backgroundColor) {
+		protected MenuOption(string name, char? key, ConsoleColor? foregroundColor, ConsoleColor? backgroundColor) {
 			Name = name;
 			ForegroundColor = foregroundColor;
 			BackgroundColor = backgroundColor;
+			Key = key;
 		}
 
-		protected MenuOption(ConsoleColor? foregroundColor, ConsoleColor? backgroundColor) {
+		protected MenuOption(ConsoleColor? foregroundColor, ConsoleColor? backgroundColor, char? key) {
 			ForegroundColor = foregroundColor;
 			BackgroundColor = backgroundColor;
+			Key = key;
 			throw new NotImplementedException();
 		}
 	}
@@ -38,8 +41,9 @@ namespace menu_system {
 		public MenuOptionWithAction(
 			string name,
 			Action action,
+			char? key = null,
 			ConsoleColor? foregroundColor = null,
-			ConsoleColor? backgroundColor = null) : base(name,
+			ConsoleColor? backgroundColor = null) : base(name, key,
 			foregroundColor,
 			backgroundColor) {
 			_action = action;
@@ -53,9 +57,12 @@ namespace menu_system {
 	public class MenuOptionWithSubMenu: MenuOption {
 		private readonly Menu _submenu;
 			
-		public MenuOptionWithSubMenu(string name, Menu submenu,
+		public MenuOptionWithSubMenu(
+			string name, 
+			Menu submenu, 
+			char? key = null,
 			ConsoleColor? foregroundColor = null,
-			ConsoleColor? backgroundColor = null) : base(name,
+			ConsoleColor? backgroundColor = null) : base(name, key,
 			foregroundColor,
 			backgroundColor) {
 			_submenu = submenu;
@@ -82,9 +89,13 @@ namespace menu_system {
 			}
 		}
 
-		public MenuOptionWithStringSelector(string name, List<string> options, Action<string> onChange,
+		public MenuOptionWithStringSelector(
+			string name, 
+			List<string> options, 
+			Action<string> onChange,
+			char? key = null,
 			ConsoleColor? foregroundColor = null,
-			ConsoleColor? backgroundColor = null) : base(name,
+			ConsoleColor? backgroundColor = null) : base(name, key,
 			foregroundColor,
 			backgroundColor) {
 			if (options.Count < 2) throw new Exception("Must have at least 2 options");
@@ -123,10 +134,10 @@ namespace menu_system {
 		public int Selection {
 			get => _selection;
 			set {
-				if (value >= _start && value <= _count) {
+				if (value >= 0 && value < _count) {
 					_selection = value;
 				} else {
-					throw new Exception("Selection out of index");
+					throw new Exception($"Selection out of range: {value}");
 				}
 			}
 		}
@@ -136,8 +147,9 @@ namespace menu_system {
 			int count,
 			Action<int, int> onChange,
 			int step = 1,
+			char? key = null,
 			ConsoleColor? foregroundColor = null,
-			ConsoleColor? backgroundColor = null) : base(name,
+			ConsoleColor? backgroundColor = null) : base(name, key,
 			foregroundColor,
 			backgroundColor) {
 			if (count <= 1 || step <= 1) {
