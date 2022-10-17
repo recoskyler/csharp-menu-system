@@ -25,7 +25,7 @@ For a full implementation example, see [Program.cs](./menu-system/Program.cs).
 
 ```csharp
 MenuOptionWithStringSelector strSelector = new MenuOptionWithStringSelector("Some multi option",
-    new List<string> {"Basic", "Medium", "Advanced"}, s => { });
+    new List<string> {"Basic", "Medium", "Advanced"}, s => { }, 'm');
 
 MenuOptionWithNumberSelector numSelector = new MenuOptionWithNumberSelector("Some multi num option",
     1, // Start of the range
@@ -33,29 +33,31 @@ MenuOptionWithNumberSelector numSelector = new MenuOptionWithNumberSelector("Som
     (int a) => { someVal = a; },
     2); // Steps. The list will be 1, 3, 5, 7, 9...
 
-Dictionary<char, MenuOption> subMenuOptions = new Dictionary<char, MenuOption>()
+List<MenuOption> subMenuOptions = new List<MenuOption>()
 {
-    {'1', new MenuOptionWithAction("Sum 1 and 2", () => { Console.WriteLine(Sum(1, 2));
-        Console.ReadKey();
-    })},
-    {'2', new MenuOptionWithAction("Print YO", () => { Console.WriteLine("YO");
-        Console.ReadKey();
-    })},
-    {'3', strSelector},
-    {'4', numSelector},
+    new MenuOptionWithAction("Sum 1 and 2", () => { 
+            Console.WriteLine(Sum(1, 2));
+            Console.ReadKey();
+        }),
+    new MenuOptionWithAction("Print YO", () => {
+            Console.WriteLine("YO");
+            Console.ReadKey();
+        }),
+    strSelector,
+    numSelector,
 };
 
 Menu subMenu = new Menu(subMenuOptions, false, "the sub menu", "This is a sub menu");
 
-Dictionary<char, MenuOption> menuOptions = new Dictionary<char, MenuOption>()
+List<MenuOption> menuOptions = new List<MenuOption>()
 {
-    {'a', new MenuOptionWithAction("Sum 5 and 2", () => { Console.WriteLine(Sum(5, 2));
+    new MenuOptionWithAction("Sum 5 and 2", () => { Console.WriteLine(Sum(5, 2));
         Console.ReadKey();
-    })},
-    {'b', new MenuOptionWithAction("Print HEY", () => { Console.WriteLine("HEY");
+    }),
+    new MenuOptionWithAction("Print HEY", () => { Console.WriteLine("HEY");
         Console.ReadKey();
-    })},
-    {'c', new MenuOptionWithSubMenu("Go to sub menu", subMenu)}
+    }),
+    new MenuOptionWithSubMenu("Go to sub menu", subMenu)
 };
 
 Menu menu = new Menu(menuOptions, true, "the main menu", "This is a simple menu system", true);

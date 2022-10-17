@@ -18,29 +18,29 @@ namespace menu_system {
 				10,
 				(int index, int value) => { someVal = value; });
 			
-			Dictionary<char, MenuOption> subMenuOptions = new Dictionary<char, MenuOption>()
+			List<MenuOption> subMenuOptions = new List<MenuOption>()
 			{
-				{'1', new MenuOptionWithAction("Sum 1 and 2", () => { Console.WriteLine(Sum(1, 2));
+				new MenuOptionWithAction("Sum 1 and 2", () => { Console.WriteLine(Sum(1, 2));
 					Console.ReadKey();
-				})},
-				{'2', new MenuOptionWithAction("Print YO", () => { Console.WriteLine("YO");
+				}),
+				new MenuOptionWithAction("Print YO", () => { Console.WriteLine("YO");
 					Console.ReadKey();
-				})},
-				{'3', strSelector},
-				{'4', numSelector},
+				}),
+				strSelector,
+				numSelector,
 			};
 			
 			Menu subMenu = new Menu(subMenuOptions, false, "the sub menu", "This is a sub menu");
 			
-			Dictionary<char, MenuOption> menuOptions = new Dictionary<char, MenuOption>()
+			List<MenuOption> menuOptions = new List<MenuOption>()
 			{
-				{'a', new MenuOptionWithAction("Sum 5 and 2", () => { Console.WriteLine(Sum(5, 2));
+				new MenuOptionWithAction("Sum 5 and 2", () => { Console.WriteLine(Sum(5, 2));
 					Console.ReadKey();
-				})},
-				{'b', new MenuOptionWithAction("Print HEY", () => { Console.WriteLine("HEY");
+				}),
+				new MenuOptionWithAction("Print HEY", () => { Console.WriteLine("HEY");
 					Console.ReadKey();
-				})},
-				{'c', new MenuOptionWithSubMenu("Go to sub menu", subMenu)}
+				}),
+				new MenuOptionWithSubMenu("Go to sub menu", subMenu)
 			};
 
 			Menu menu = new Menu(menuOptions, true, "the main menu", "This is a simple menu system", true);
